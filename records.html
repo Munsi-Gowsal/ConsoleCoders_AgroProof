@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgriProof - Claim Records</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>📊 Complete Claim Records</h1>
+<a href="index.html" class="btn-back">← Back to Home</a>
+</div>
+
+<div class="card">
+<h2>📈 System Statistics</h2>
+<div class="stats-grid">
+<div class="stat-box">
+<div class="stat-number" id="totalClaims">0</div>
+<div class="stat-label">Total Claims</div>
+</div>
+<div class="stat-box">
+<div class="stat-number" id="pendingClaims">0</div>
+<div class="stat-label">Pending Review</div>
+</div>
+<div class="stat-box">
+<div class="stat-number" id="approvedClaims">0</div>
+<div class="stat-label">Approved</div>
+</div>
+<div class="stat-box">
+<div class="stat-number" id="rejectedClaims">0</div>
+<div class="stat-label">Rejected</div>
+</div>
+<div class="stat-box">
+<div class="stat-number" id="activeFarmers">0</div>
+<div class="stat-label">Active Farmers</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<h2>🔍 Filter Claims</h2>
+<div style="margin-bottom:20px">
+<button class="btn-info" onclick="filterClaims('all')">All Claims</button>
+<button class="btn-warning" onclick="filterClaims('pending')">Pending</button>
+<button class="btn-success" onclick="filterClaims('approved')">Approved</button>
+<button class="btn-danger" onclick="filterClaims('rejected')">Rejected</button>
+</div>
+<div id="claimsList"></div>
+</div>
+</div>
+
+<script src="data.js"></script>
+<script>
+let currentFilter = 'all';
+
+function filterClaims(filter) {
+    currentFilter = filter;
+    loadClaims();
+}
+
+function loadClaims() {
+    let claims = getClaims();
+    if (currentFilter !== 'all') {
+        claims = claims.filter(c => c.status === currentFilter);
+    }
+    
+    const list = document.getElementById('claimsList');
+    if (claims.length === 0) {
+        list.innerHTML = '<p class="message info">No claims found</p>';
+        return;
+    }
+    
+    list.innerHTML = claims.reverse().map(c => `
+        <div class="claim-record">
+            <h4>Claim #${c.id} <span class="status ${c.status}">${c.status.toUpperCase()}</span></h4>
+            <p><strong>Farmer Address:</strong> <span class="address">${c.farmerAddress}</span></p>
+            <p><strong>Proof Hash:</strong> <span class="hash">${c.proofHash}</span></p>
+            <p><strong>Submitted:</strong> ${formatDate(c.timestamp)}</p>
+            ${c.verifiedBy ? `
+                <p><strong>Verified By:</strong> <span class="address">${c.verifiedBy}</span></p>
+                <p><strong>Verified At:</strong> ${formatDate(c.verifiedAt)}</p>
+            ` : '<p><strong>Status:</strong> Awaiting verification</p>'}
+        </div>
+    `).join('');
+}
+
+function updateStats() {
+    const stats = getStats();
+    document.getElementById('totalClaims').textContent = stats.total;
+    document.getElementById('pendingClaims').textContent = stats.pending;
+    document.getElementById('approvedClaims').textContent = stats.approved;
+    document.getElementById('rejectedClaims').textContent = stats.rejected;
+    document.getElementById('activeFarmers').textContent = stats.farmers;
+}
+
+loadClaims();
+updateStats();
+</script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgriProof - Farmer Portal</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>🌱 Farmer Portal</h1>
+<a href="index.html" class="btn-back">← Back to Home</a>
+</div>
+
+<div class="card">
+<h2>Enroll as Farmer</h2>
+<form onsubmit="return handleEnroll(event)">
+<label>Your Farmer ID:</label>
+<input type="text" id="farmerAddr" placeholder="farmer1, john_farmer, etc." required>
+<label>Claim Deadline (Days):</label>
+<input type="number" id="deadline" value="30" min="1" max="365" required>
+<small>Number of days from enrollment until claim deadline</small>
+<button type="submit">Enroll Now</button>
+</form>
+<div id="enrollMsg"></div>
+</div>
+
+<div class="card">
+<h2>Submit New Claim</h2>
+<form onsubmit="return handleSubmitClaim(event)">
+<label>Your Farmer ID:</label>
+<input type="text" id="claimFarmerAddr" placeholder="farmer1, john_farmer, etc." required>
+<label>Proof Hash (SHA-256):</label>
+<textarea id="proofHash" rows="3" placeholder="sha256:abc123... or any evidence description" required></textarea>
+<small>Cryptographic hash or description of crop damage evidence</small>
+<button type="submit">Submit Claim</button>
+</form>
+<div id="claimMsg"></div>
+</div>
+
+<div class="card">
+<h2>My Claims & Status</h2>
+<div>
+<label>Enter your Farmer ID to view claims:</label>
+<input type="text" id="searchAddr" placeholder="farmer1, john_farmer, etc.">
+<button onclick="loadMyClaims()">🔍 Search My Claims</button>
+</div>
+<div id="myClaimsList" style="margin-top:20px"></div>
+</div>
+</div>
+
+<script src="data.js"></script>
+<script>
+function handleEnroll(e) {
+    e.preventDefault();
+    const addr = document.getElementById('farmerAddr').value.trim();
+    const deadline = parseInt(document.getElementById('deadline').value);
+    enrollFarmer(addr, deadline);
+    document.getElementById('enrollMsg').innerHTML = `<div class="message success">✅ Enrolled successfully as: <strong>${addr}</strong><br>Claim Deadline: ${deadline} days from now<br>You can now submit claims</div>`;
+    document.getElementById('farmerAddr').value = '';
+    setTimeout(() => document.getElementById('enrollMsg').innerHTML = '', 5000);
+    return false;
+}
+
+function handleSubmitClaim(e) {
+    e.preventDefault();
+    const addr = document.getElementById('claimFarmerAddr').value.trim();
+    const hash = document.getElementById('proofHash').value.trim();
+    
+    const claim = {
+        farmerAddress: addr,
+        proofHash: hash,
+        status: 'pending',
+        verifiedBy: null,
+        verifiedAt: null
+    };
+    
+    const saved = saveClaim(claim);
+    document.getElementById('claimMsg').innerHTML = `<div class="message success">✅ Claim #${saved.id} submitted successfully!<br>Farmer: <strong>${addr}</strong><br>Status: Pending Admin/Verifier Review</div>`;
+    document.getElementById('proofHash').value = '';
+    setTimeout(() => document.getElementById('claimMsg').innerHTML = '', 5000);
+    return false;
+}
+
+function loadMyClaims() {
+    const addr = document.getElementById('searchAddr').value.trim();
+    if (!addr) {
+        alert('Please enter your Farmer ID');
+        return;
+    }
+    
+    const claims = getClaims().filter(c => c.farmerAddress === addr);
+    const list = document.getElementById('myClaimsList');
+    
+    if (claims.length === 0) {
+        list.innerHTML = '<p class="message info">No claims found for this ID. Submit your first claim above!</p>';
+        return;
+    }
+    
+    list.innerHTML = `
+        <div class="message success" style="margin-bottom:20px">
+            <strong>Found ${claims.length} claim(s) for: ${addr}</strong>
+        </div>
+    ` + claims.reverse().map(c => `
+        <div class="claim-record">
+            <h4>Claim #${c.id} <span class="status ${c.status}">${c.status.toUpperCase()}</span></h4>
+            <p><strong>Proof Hash:</strong> <span class="hash">${c.proofHash}</span></p>
+            <p><strong>Submitted:</strong> ${formatDate(c.timestamp)}</p>
+            
+            ${c.status === 'pending' ? `
+                <p style="color:#856404;margin-top:10px">⏳ <strong>Status:</strong> Awaiting admin/verifier review</p>
+            ` : ''}
+            
+            ${c.status === 'approved' ? `
+                <div style="background:#d4edda;padding:12px;border-radius:6px;margin-top:10px">
+                    <p style="color:#155724"><strong>✅ CLAIM APPROVED</strong></p>
+                    <p style="color:#155724;margin-top:5px"><strong>Approved By:</strong> ${c.verifiedBy}</p>
+                    <p style="color:#155724"><strong>Approved At:</strong> ${formatDate(c.verifiedAt)}</p>
+                    <p style="color:#155724;margin-top:8px">✓ Your claim has been verified and approved for processing.</p>
+                </div>
+            ` : ''}
+            
+            ${c.status === 'rejected' ? `
+                <div style="background:#f8d7da;padding:12px;border-radius:6px;margin-top:10px">
+                    <p style="color:#721c24"><strong>❌ CLAIM REJECTED</strong></p>
+                    <p style="color:#721c24;margin-top:5px"><strong>Rejected By:</strong> ${c.verifiedBy}</p>
+                    <p style="color:#721c24"><strong>Rejected At:</strong> ${formatDate(c.verifiedAt)}</p>
+                    <p style="color:#721c24;margin-top:8px">Your claim was reviewed but did not meet approval criteria.</p>
+                </div>
+            ` : ''}
+        </div>
+    `).join('');
+}
+</script>
+</body>
+</html>

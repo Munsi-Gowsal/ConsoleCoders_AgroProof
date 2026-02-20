@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Farmer Records - AgriProof</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>🌱 My Farmer Records</h1>
+<a href="index.html" class="btn-back">← Back to Home</a>
+</div>
+
+<div class="card">
+<h2>🔐 Login to View Your Records</h2>
+<div id="loginSection">
+<label>Enter Your Farmer ID:</label>
+<input type="text" id="farmerIdInput" placeholder="e.g., farmer1, john, etc.">
+<small>Enter any ID you used when enrolling or submitting claims</small>
+<button onclick="loadFarmerRecords()">View My Records</button>
+</div>
+</div>
+
+<div id="recordsSection" style="display:none;">
+<div class="card">
+<h2>👤 Farmer Information</h2>
+<div id="farmerInfo"></div>
+</div>
+
+<div class="card">
+<h2>📋 My Enrollment Details</h2>
+<div id="enrollmentInfo"></div>
+</div>
+
+<div class="card">
+<h2>📝 My Claims History</h2>
+<div id="claimsInfo"></div>
+</div>
+
+<div class="card">
+<h2>📊 My Statistics</h2>
+<div class="stats-grid">
+<div class="stat-box">
+<div class="stat-number" id="myTotalClaims">0</div>
+<div class="stat-label">Total Claims</div>
+</div>
+<div class="stat-box">
+<div class="stat-number" id="myPendingClaims">0</div>
+<div class="stat-label">Pending</div>
+</div>
+<div class="stat-box">
+<div class="stat-number" id="myApprovedClaims">0</div>
+<div class="stat-label">Approved</div>
+</div>
+<div class="stat-box">
+<div class="stat-number" id="myRejectedClaims">0</div>
+<div class="stat-label">Rejected</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<script src="data.js"></script>
+<script>
+let currentFarmerId = null;
+
+function loadFarmerRecords() {
+    const farmerId = document.getElementById('farmerIdInput').value.trim();
+    
+    if (!farmerId) {
+        alert('Please enter your Farmer ID');
+        return;
+    }
+    
+    currentFarmerId = farmerId;
+    
+    // Get farmer's enrollment
+    const enrollments = getEnrollments();
+    const enrollment = enrollments.find(e => e.farmerId === farmerId);
+    
+    // Get farmer's claims
+    const allClaims = getClaims();
+    const farmerClaims = allClaims.filter(c => c.farmerId === farmerId);
+    
+    if (!enrollment && farmerClaims.length === 0) {
+        alert('No records found for this Farmer ID. Please check your ID or enroll first.');
+        return;
+    }
+    
+    // Show records section
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('recordsSection').style.display = 'block';
+    
+    // Display farmer info
+    document.getElementById('farmerInfo').innerHTML = `
+        <p><strong>Farmer ID:</strong> <span class="address">${farmerId}</span></p>
+        <p><strong>Status:</strong> ${enrollment ? '<span class="status approved">Enrolled</span>' : '<span class="status pending">Not Enrolled</span>'}</p>
+    `;
+    
+    // Display enrollment info
+    if (enrollment) {
+        const enrollDate = new Date(enrollment.enrollmentDate);
+        const deadline = new Date(enrollment.deadline);
+        const now = new Date();
+        const isExpired = now > deadline;
+        const daysLeft = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+        
+        document.getElementById('enrollmentInfo').innerHTML = `
+            <p><strong>Enrollment Date:</strong> ${enrollDate.toLocaleString()}</p>
+            <p><strong>Claim Deadline:</strong> ${deadline.toLocaleString()}</p>
+            <p><strong>Deadline Days:</strong> ${enrollment.deadlineDays} days</p>
+            <p><strong>Status:</strong> ${isExpired ? 
+                '<span class="status rejected">Expired</span>' : 
+                `<span class="status approved">${daysLeft} days remaining</span>`
+            }</p>
+        `;
+    } else {
+        document.getElementById('enrollmentInfo').innerHTML = `
+            <div class="message warning">
+                <strong>⚠️ Not Enrolled</strong><br>
+                You need to enroll in the system before submitting claims.
+                <br><br>
+                <a href="farmer.html" class="btn">Go to Farmer Portal to Enroll</a>
+            </div>
+        `;
+    }
+    
+    // Display claims
+    if (farmerClaims.length > 0) {
+        let claimsHtml = '';
+        farmerClaims.forEach((claim, index) => {
+            const submitDate = new Date(claim.submissionDate);
+            let statusHtml = `<span class="status ${claim.status}">${claim.status.toUpperCase()}</span>`;
+            let verificationInfo = '';
+            
+            if (claim.status !== 'pending') {
+                const verifyDate = new Date(claim.verificationDate);
+                verificationInfo = `
+                    <p><strong>Verified By:</strong> <span class="address">${claim.verifiedBy}</span></p>
+                    <p><strong>Verification Date:</strong> ${verifyDate.toLocaleString()}</p>
+                `;
+            }
+            
+            claimsHtml += `
+                <div class="claim-record">
+                    <h4>Claim #${index + 1}</h4>
+                    <p><strong>Status:</strong> ${statusHtml}</p>
+                    <p><strong>Proof Hash:</strong> <span class="hash">${claim.proofHash}</span></p>
+                    <p><strong>Submission Date:</strong> ${submitDate.toLocaleString()}</p>
+                    ${verificationInfo}
+                </div>
+            `;
+        });
+        document.getElementById('claimsInfo').innerHTML = claimsHtml;
+    } else {
+        document.getElementById('claimsInfo').innerHTML = `
+            <div class="message info">
+                <strong>ℹ️ No Claims Yet</strong><br>
+                You haven't submitted any claims yet.
+                ${enrollment ? '<br><br><a href="farmer.html" class="btn">Go to Farmer Portal to Submit Claim</a>' : ''}
+            </div>
+        `;
+    }
+    
+    // Calculate statistics
+    const totalClaims = farmerClaims.length;
+    const pendingClaims = farmerClaims.filter(c => c.status === 'pending').length;
+    const approvedClaims = farmerClaims.filter(c => c.status === 'approved').length;
+    const rejectedClaims = farmerClaims.filter(c => c.status === 'rejected').length;
+    
+    document.getElementById('myTotalClaims').textContent = totalClaims;
+    document.getElementById('myPendingClaims').textContent = pendingClaims;
+    document.getElementById('myApprovedClaims').textContent = approvedClaims;
+    document.getElementById('myRejectedClaims').textContent = rejectedClaims;
+}
+
+// Allow Enter key to submit
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('farmerIdInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            loadFarmerRecords();
+        }
+    });
+});
+</script>
+</body>
+</html>

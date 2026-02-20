@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgriProof - Admin Portal</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>👑 Admin Portal</h1>
+<a href="index.html" class="btn-back">← Back to Home</a>
+</div>
+
+<div class="card" id="loginCard">
+<h2>Admin Login</h2>
+<form onsubmit="return handleLogin(event)">
+<label>Admin ID / Username:</label>
+<input type="text" id="adminId" placeholder="Enter any admin ID (e.g., admin, john, admin123)" required>
+<small>Enter any identifier to login as admin</small>
+<button type="submit">Login</button>
+</form>
+<div id="loginMsg"></div>
+</div>
+
+<div id="adminPanel" style="display:none">
+<div class="card">
+<h2>Admin Dashboard</h2>
+<div class="message success">
+<strong>✅ Logged in as Admin</strong><br>
+Admin ID: <strong id="currentAdmin"></strong>
+<button class="btn-danger" onclick="logout()" style="margin-left:15px">Logout</button>
+</div>
+</div>
+
+<div class="card">
+<h2>Pending Claims - Admin Review</h2>
+<p style="margin-bottom:15px;color:#f0f0f0;text-shadow:1px 1px 2px rgba(0,0,0,0.3)">Review and process farmer claims</p>
+<div id="pendingClaimsAdmin"></div>
+</div>
+
+<div class="card">
+<h2>Manage Verifiers</h2>
+<form onsubmit="return handleAddVerifier(event)">
+<label>Add New Verifier (any format):</label>
+<input type="text" id="verifierAddr" placeholder="verifier1, john_verifier, etc." required>
+<button type="submit" class="btn-success">➕ Add Verifier</button>
+</form>
+<div id="verifierMsg"></div>
+</div>
+
+<div class="card">
+<h2>Current Verifiers</h2>
+<div id="verifiersList"></div>
+</div>
+
+<div class="card">
+<h2>Recently Processed Claims</h2>
+<div id="recentClaims"></div>
+</div>
+</div>
+</div>
+
+<script src="data.js"></script>
+<script>
+let currentAdminId = null;
+
+function handleLogin(e) {
+    e.preventDefault();
+    const id = document.getElementById('adminId').value.trim();
+    
+    if (id.length > 0) {
+        currentAdminId = id;
+        document.getElementById('loginCard').style.display = 'none';
+        document.getElementById('adminPanel').style.display = 'block';
+        document.getElementById('currentAdmin').textContent = id;
+        loadPendingClaims();
+        loadVerifiers();
+        loadRecentClaims();
+    } else {
+        document.getElementById('loginMsg').innerHTML = '<div class="message warning">❌ Please enter an admin ID</div>';
+    }
+    return false;
+}
+
+function logout() {
+    currentAdminId = null;
+    document.getElementById('loginCard').style.display = 'block';
+    document.getElementById('adminPanel').style.display = 'none';
+    document.getElementById('adminId').value = '';
+    document.getElementById('loginMsg').innerHTML = '';
+}
+
+function loadPendingClaims() {
+    const claims = getClaims().filter(c => c.status === 'pending');
+    const list = document.getElementById('pendingClaimsAdmin');
+    
+    if (claims.length === 0) {
+        list.innerHTML = '<p class="message info">✅ No pending claims - All caught up!</p>';
+        return;
+    }
+    
+    list.innerHTML = claims.map(c => `
+        <div class="claim-record">
+            <h4>Claim #${c.id} <span class="status pending">PENDING REVIEW</span></h4>
+            <p><strong>Farmer:</strong> ${c.farmerAddress}</p>
+            <p><strong>Proof Hash:</strong> <span class="hash">${c.proofHash}</span></p>
+            <p><strong>Submitted:</strong> ${formatDate(c.timestamp)}</p>
+            <div style="margin-top:15px">
+                <button class="btn-success" onclick="adminVerifyClaim(${c.id}, 'approved')">✓ Approve Claim</button>
+                <button class="btn-danger" onclick="adminVerifyClaim(${c.id}, 'rejected')">✗ Reject Claim</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function adminVerifyClaim(id, status) {
+    if (!currentAdminId) {
+        alert('Please login first');
+        return;
+    }
+    
+    const action = status === 'approved' ? 'approve' : 'reject';
+    if (!confirm(`Are you sure you want to ${action} Claim #${id}?`)) {
+        return;
+    }
+    
+    updateClaim(id, {
+        status: status,
+        verifiedBy: 'Admin: ' + currentAdminId,
+        verifiedAt: new Date().toISOString()
+    });
+    
+    alert(`✅ Claim #${id} ${status}!`);
+    loadPendingClaims();
+    loadRecentClaims();
+}
+
+function loadVerifiers() {
+    const verifiers = getVerifiers();
+    const list = document.getElementById('verifiersList');
+    
+    if (verifiers.length === 0) {
+        list.innerHTML = '<p class="message info">No verifiers added yet</p>';
+        return;
+    }
+    
+    list.innerHTML = verifiers.map(v => `
+        <div class="verifier-item">
+            <span style="font-weight:600">${v}</span>
+            <button class="btn-danger" onclick="handleRemoveVerifier('${v}')">Remove</button>
+        </div>
+    `).join('');
+}
+
+function handleAddVerifier(e) {
+    e.preventDefault();
+    const addr = document.getElementById('verifierAddr').value.trim();
+    addVerifier(addr);
+    document.getElementById('verifierMsg').innerHTML = '<div class="message success">✅ Verifier added successfully!</div>';
+    document.getElementById('verifierAddr').value = '';
+    loadVerifiers();
+    setTimeout(() => document.getElementById('verifierMsg').innerHTML = '', 3000);
+    return false;
+}
+
+function handleRemoveVerifier(addr) {
+    if (confirm('Remove this verifier?')) {
+        removeVerifier(addr);
+        document.getElementById('verifierMsg').innerHTML = '<div class="message success">✅ Verifier removed</div>';
+        loadVerifiers();
+        setTimeout(() => document.getElementById('verifierMsg').innerHTML = '', 3000);
+    }
+}
+
+function loadRecentClaims() {
+    const claims = getClaims().filter(c => c.status !== 'pending').slice(-5).reverse();
+    const list = document.getElementById('recentClaims');
+    
+    if (claims.length === 0) {
+        list.innerHTML = '<p class="message info">No processed claims yet</p>';
+        return;
+    }
+    
+    list.innerHTML = claims.map(c => `
+        <div class="claim-record">
+            <h4>Claim #${c.id} <span class="status ${c.status}">${c.status.toUpperCase()}</span></h4>
+            <p><strong>Farmer:</strong> ${c.farmerAddress.substring(0,20)}...</p>
+            <p><strong>Processed By:</strong> ${c.verifiedBy}</p>
+            <p><strong>Processed At:</strong> ${formatDate(c.verifiedAt)}</p>
+        </div>
+    `).join('');
+}
+</script>
+</body>
+</html>

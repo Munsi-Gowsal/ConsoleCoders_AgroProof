@@ -1,0 +1,620 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8f5e9 100%);
+  color: #333;
+  line-height: 1.6;
+}
+
+#root {
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* Main App Layout */
+header {
+  text-align: center;
+}
+
+section {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Component containers */
+.verifier-management,
+.claim-verification,
+.claim-submission,
+.enrollment-form,
+.claim-status,
+.claim-history {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  margin-bottom: 16px;
+  color: #1a1a1a;
+  font-size: 24px;
+}
+
+h3 {
+  margin-top: 24px;
+  margin-bottom: 12px;
+  color: #333;
+  font-size: 18px;
+}
+
+/* Form styles */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #4f46e5;
+}
+
+.form-group input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.form-group small {
+  display: block;
+  margin-top: 4px;
+  color: #666;
+  font-size: 12px;
+}
+
+/* Button styles */
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: #4f46e5;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #4338ca;
+}
+
+.btn-success {
+  background-color: #10b981;
+  color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+  background-color: #059669;
+}
+
+.btn-danger {
+  background-color: #ef4444;
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #dc2626;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+/* Message styles */
+.info-message {
+  padding: 12px;
+  background-color: #e0f2fe;
+  border-left: 4px solid #0284c7;
+  border-radius: 4px;
+  color: #0c4a6e;
+  margin-bottom: 16px;
+}
+
+.warning-message {
+  padding: 12px;
+  background-color: #fef3c7;
+  border-left: 4px solid #f59e0b;
+  border-radius: 4px;
+  color: #78350f;
+  margin-bottom: 16px;
+}
+
+.error-message {
+  padding: 12px;
+  background-color: #fee2e2;
+  border-left: 4px solid #ef4444;
+  border-radius: 4px;
+  color: #7f1d1d;
+  margin-bottom: 16px;
+}
+
+.success-message {
+  padding: 12px;
+  background-color: #d1fae5;
+  border-left: 4px solid #10b981;
+  border-radius: 4px;
+  color: #064e3b;
+  margin-bottom: 16px;
+}
+
+/* Verifier Management specific styles */
+.verifiers-section {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.verifiers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.verifier-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+.verifier-address {
+  flex: 1;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  color: #374151;
+}
+
+.address-full {
+  display: inline;
+}
+
+.address-short {
+  display: none;
+}
+
+/* Claim Verification specific styles */
+.claims-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.claims-count {
+  margin-bottom: 16px;
+  color: #666;
+}
+
+.claim-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #fafafa;
+}
+
+.claim-details {
+  margin-bottom: 16px;
+}
+
+.claim-field {
+  display: flex;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
+.claim-field strong {
+  min-width: 140px;
+  color: #555;
+}
+
+.claim-field .address,
+.claim-field .proof-hash {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  word-break: break-all;
+}
+
+.claim-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.claim-actions button {
+  flex: 1;
+}
+
+/* Status indicators */
+.status-pending {
+  color: #f59e0b;
+  font-weight: 500;
+}
+
+.status-approved {
+  color: #10b981;
+  font-weight: 500;
+}
+
+.status-rejected {
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.status-active {
+  color: #10b981;
+  font-weight: 500;
+}
+
+.status-expired {
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.enrollment-status {
+  padding: 12px;
+  background-color: #f0f9ff;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  #root {
+    padding: 12px;
+  }
+
+  h1 {
+    font-size: 24px !important;
+  }
+
+  h2 {
+    font-size: 20px !important;
+  }
+
+  .address-full {
+    display: none;
+  }
+  
+  .address-short {
+    display: inline;
+  }
+  
+  .verifier-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .verifier-item button {
+    width: 100%;
+  }
+  
+  .claim-actions {
+    flex-direction: column;
+  }
+  
+  .claim-field {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .claim-field strong {
+    min-width: auto;
+  }
+}
+
+/* ClaimStatus component styles */
+.claim-status .status-section {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.claim-status .status-badge {
+  display: inline-block;
+  padding: 8px 24px;
+  border-radius: 20px;
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.claim-status .detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.claim-status .detail-row:last-child {
+  border-bottom: none;
+}
+
+.claim-status .detail-row .label {
+  font-weight: 600;
+  color: #555;
+  min-width: 180px;
+}
+
+.claim-status .detail-row .value {
+  color: #333;
+  text-align: right;
+  word-break: break-word;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+}
+
+.claim-status .detail-row .value.expired {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.claim-status .detail-row .value.active {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.claim-status .enrollment-details {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 2px solid #e5e5e5;
+}
+
+.claim-status.loading,
+.claim-status.error,
+.claim-status.no-claim {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+/* ClaimHistory component styles */
+.claim-history .filter-controls {
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: #f9fafb;
+  border-radius: 6px;
+}
+
+.claim-history .filter-controls label {
+  display: block;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: #333;
+}
+
+.claim-history .filter-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.claim-history .filter-buttons button {
+  padding: 8px 16px;
+  border: 2px solid #e5e7eb;
+  background-color: white;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #374151;
+}
+
+.claim-history .filter-buttons button:hover {
+  border-color: #4f46e5;
+  color: #4f46e5;
+}
+
+.claim-history .filter-buttons button.active {
+  background-color: #4f46e5;
+  border-color: #4f46e5;
+  color: white;
+}
+
+.claim-history .no-claims {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.claim-history .claims-table {
+  overflow-x: auto;
+  margin-bottom: 24px;
+}
+
+.claim-history table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.claim-history table thead {
+  background-color: #f9fafb;
+}
+
+.claim-history table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.claim-history table td {
+  padding: 12px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #333;
+}
+
+.claim-history table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.claim-history table .status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.claim-history .pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.claim-history .pagination button {
+  padding: 8px 16px;
+  border: 1px solid #e5e7eb;
+  background-color: white;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.claim-history .pagination button:hover:not(:disabled) {
+  background-color: #f9fafb;
+  border-color: #4f46e5;
+}
+
+.claim-history .pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.claim-history .pagination .page-numbers {
+  display: flex;
+  gap: 4px;
+}
+
+.claim-history .pagination .page-numbers button {
+  min-width: 36px;
+  padding: 8px 12px;
+}
+
+.claim-history .pagination .page-numbers button.active {
+  background-color: #4f46e5;
+  border-color: #4f46e5;
+  color: white;
+}
+
+.claim-history .pagination .page-info {
+  color: #666;
+  font-size: 14px;
+  margin-left: 8px;
+}
+
+.claim-history.loading,
+.claim-history.error {
+  text-align: center;
+  padding: 40px;
+}
+
+.claim-history.error button {
+  margin-top: 16px;
+}
+
+/* Responsive adjustments for new components */
+@media (max-width: 768px) {
+  .claim-status .detail-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .claim-status .detail-row .label {
+    min-width: auto;
+  }
+  
+  .claim-status .detail-row .value {
+    text-align: left;
+  }
+  
+  .claim-history .filter-buttons {
+    flex-direction: column;
+  }
+  
+  .claim-history .filter-buttons button {
+    width: 100%;
+  }
+  
+  .claim-history table {
+    font-size: 12px;
+  }
+  
+  .claim-history table th,
+  .claim-history table td {
+    padding: 8px;
+  }
+  
+  .claim-history .pagination {
+    flex-direction: column;
+  }
+  
+  .claim-history .pagination .page-numbers {
+    order: -1;
+  }
+}

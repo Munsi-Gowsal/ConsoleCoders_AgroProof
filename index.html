@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgriProof - Agricultural Blockchain Platform</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.hero{
+    text-align:center;
+    padding:60px 20px;
+    background:rgba(255,255,255,0.95);
+    border-radius:30px;
+    margin-bottom:40px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.15);
+    position:relative;
+    overflow:hidden
+}
+.hero::before{
+    content:'';
+    position:absolute;
+    top:-50%;
+    left:-50%;
+    width:200%;
+    height:200%;
+    background:radial-gradient(circle,rgba(44,95,45,0.05) 0%,transparent 70%);
+    animation:rotate 20s linear infinite
+}
+@keyframes rotate{
+    0%{transform:rotate(0deg)}
+    100%{transform:rotate(360deg)}
+}
+.hero-content{position:relative;z-index:1}
+.hero h1{
+    font-size:56px;
+    margin-bottom:20px;
+    background:linear-gradient(135deg,#2c5f2d,#667eea);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    font-weight:700
+}
+.hero p{
+    font-size:20px;
+    color:#666;
+    margin-bottom:30px;
+    line-height:1.6
+}
+.hero-icons{
+    font-size:80px;
+    margin:20px 0;
+    animation:float 3s ease-in-out infinite
+}
+.role-cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:30px;
+    margin-top:40px
+}
+.role-card{
+    background:rgba(255,255,255,0.95);
+    backdrop-filter:blur(10px);
+    padding:40px 30px;
+    border-radius:25px;
+    box-shadow:0 10px 40px rgba(0,0,0,0.1);
+    text-align:center;
+    transition:all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+    cursor:pointer;
+    border:3px solid transparent;
+    position:relative;
+    overflow:hidden
+}
+.role-card::before{
+    content:'';
+    position:absolute;
+    top:0;
+    left:-100%;
+    width:100%;
+    height:100%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);
+    transition:left 0.5s
+}
+.role-card:hover::before{
+    left:100%
+}
+.role-card:hover{
+    transform:translateY(-15px) scale(1.02);
+    box-shadow:0 20px 60px rgba(0,0,0,0.2);
+    border-color:#2c5f2d
+}
+.role-card .icon{
+    font-size:72px;
+    margin-bottom:20px;
+    display:inline-block;
+    animation:float 3s ease-in-out infinite
+}
+.role-card:nth-child(2) .icon{animation-delay:0.5s}
+.role-card:nth-child(3) .icon{animation-delay:1s}
+.role-card:nth-child(4) .icon{animation-delay:1.5s}
+.role-card h2{
+    color:#2c5f2d;
+    margin:20px 0;
+    font-size:26px;
+    font-weight:600
+}
+.role-card p{
+    color:#666;
+    line-height:1.8;
+    margin-bottom:25px;
+    font-size:15px
+}
+.btn{
+    display:inline-block;
+    background:linear-gradient(135deg,#2c5f2d,#1e4620);
+    color:#fff;
+    padding:14px 32px;
+    border-radius:25px;
+    text-decoration:none;
+    font-weight:600;
+    transition:all 0.3s;
+    box-shadow:0 4px 15px rgba(44,95,45,0.3);
+    position:relative;
+    overflow:hidden
+}
+.btn::before{
+    content:'';
+    position:absolute;
+    top:50%;
+    left:50%;
+    width:0;
+    height:0;
+    border-radius:50%;
+    background:rgba(255,255,255,0.3);
+    transform:translate(-50%,-50%);
+    transition:width 0.6s,height 0.6s
+}
+.btn:hover::before{
+    width:300px;
+    height:300px
+}
+.btn:hover{
+    transform:translateY(-3px);
+    box-shadow:0 8px 25px rgba(44,95,45,0.5)
+}
+.stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:25px;
+    margin-top:40px
+}
+.stat-card{
+    background:rgba(255,255,255,0.95);
+    backdrop-filter:blur(10px);
+    padding:30px;
+    border-radius:20px;
+    text-align:center;
+    box-shadow:0 8px 30px rgba(0,0,0,0.1);
+    transition:all 0.3s;
+    border:2px solid rgba(255,255,255,0.3)
+}
+.stat-card:hover{
+    transform:translateY(-8px);
+    box-shadow:0 15px 45px rgba(0,0,0,0.15)
+}
+.stat-card .number{
+    font-size:48px;
+    font-weight:700;
+    background:linear-gradient(135deg,#2c5f2d,#667eea);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    margin-bottom:10px;
+    animation:pulse 2s infinite
+}
+.stat-card .label{
+    color:#666;
+    font-size:14px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:1px
+}
+footer{
+    text-align:center;
+    color:rgba(255,255,255,0.9);
+    margin-top:60px;
+    font-size:14px;
+    padding:30px;
+    background:rgba(255,255,255,0.1);
+    backdrop-filter:blur(10px);
+    border-radius:20px;
+    border:2px solid rgba(255,255,255,0.2)
+}
+footer p{
+    margin:8px 0;
+    font-weight:500
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="hero">
+<div class="hero-content">
+<div class="hero-icons">🌾 🚜 🌱</div>
+<h1>AgriProof</h1>
+<p>Decentralized Agricultural Claim Registry<br>Powered by Algorand Blockchain Technology</p>
+<p style="font-size:16px;color:#888;max-width:700px;margin:0 auto">
+Transparent, tamper-proof crop damage claims for farmers and insurance companies
+</p>
+</div>
+</div>
+
+<div class="role-cards">
+<div class="role-card" onclick="location.href='admin.html'">
+<div class="icon">👑</div>
+<h2>Admin Portal</h2>
+<p>Manage verifiers, review claims, and oversee all system operations with full administrative control</p>
+<a href="admin.html" class="btn">Enter Portal</a>
+</div>
+
+<div class="role-card" onclick="location.href='verifier.html'">
+<div class="icon">✅</div>
+<h2>Verifier Portal</h2>
+<p>Review pending claims, verify evidence, and approve or reject farmer submissions</p>
+<a href="verifier.html" class="btn">Enter Portal</a>
+</div>
+
+<div class="role-card" onclick="location.href='farmer.html'">
+<div class="icon">🌱</div>
+<h2>Farmer Portal</h2>
+<p>Enroll in the system, submit crop damage claims, and track your claim status in real-time</p>
+<a href="farmer.html" class="btn">Enter Portal</a>
+</div>
+
+<div class="role-card" onclick="location.href='records.html'">
+<div class="icon">📊</div>
+<h2>Claim Records</h2>
+<p>View complete transparent history of all claims with full blockchain verification</p>
+<a href="records.html" class="btn">View Records</a>
+</div>
+</div>
+
+<div class="stats">
+<div class="stat-card">
+<div class="number" id="totalClaims">0</div>
+<div class="label">Total Claims</div>
+</div>
+<div class="stat-card">
+<div class="number" id="pendingClaims">0</div>
+<div class="label">Pending Review</div>
+</div>
+<div class="stat-card">
+<div class="number" id="approvedClaims">0</div>
+<div class="label">Approved</div>
+</div>
+<div class="stat-card">
+<div class="number" id="activeFarmers">0</div>
+<div class="label">Active Farmers</div>
+</div>
+</div>
+
+<footer>
+<p><strong>🔗 Built on Algorand Blockchain</strong></p>
+<p>Smart Contract: Python + Beaker | Frontend: Vanilla JavaScript</p>
+<p style="margin-top:15px;font-size:12px;opacity:0.8">
+Secure • Transparent • Immutable • Decentralized
+</p>
+</footer>
+</div>
+
+<script src="data.js"></script>
+<script>
+const stats=getStats();
+document.getElementById('totalClaims').textContent=stats.total;
+document.getElementById('pendingClaims').textContent=stats.pending;
+document.getElementById('approvedClaims').textContent=stats.approved;
+document.getElementById('activeFarmers').textContent=stats.farmers;
+</script>
+</body>
+</html>

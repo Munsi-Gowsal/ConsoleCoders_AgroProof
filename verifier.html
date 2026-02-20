@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgriProof - Verifier Portal</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>✅ Verifier Portal</h1>
+<a href="index.html" class="btn-back">← Back to Home</a>
+</div>
+
+<div class="card" id="loginCard">
+<h2>Verifier Login</h2>
+<form onsubmit="return handleLogin(event)">
+<label>Verifier ID:</label>
+<input type="text" id="verifierId" placeholder="verifier1, john_verifier, etc." required>
+<small>Enter your verifier ID to access the portal</small>
+<button type="submit">Login</button>
+</form>
+<div id="loginMsg"></div>
+</div>
+
+<div id="verifierPanel" style="display:none">
+<div class="card">
+<h2>Verifier Dashboard</h2>
+<div class="message success">
+<strong>✅ Logged in as Verifier</strong><br>
+Verifier ID: <strong id="currentVerifier"></strong>
+<button class="btn-danger" onclick="logout()" style="margin-left:15px">Logout</button>
+</div>
+</div>
+
+<div class="card">
+<h2>Pending Claims for Review</h2>
+<div id="pendingClaims"></div>
+</div>
+
+<div class="card">
+<h2>Recently Verified Claims</h2>
+<div id="verifiedClaims"></div>
+</div>
+</div>
+</div>
+
+<script src="data.js"></script>
+<script>
+let currentVerifierId = null;
+
+function handleLogin(e) {
+    e.preventDefault();
+    const id = document.getElementById('verifierId').value.trim();
+    
+    if (id.length > 0) {
+        currentVerifierId = id;
+        document.getElementById('loginCard').style.display = 'none';
+        document.getElementById('verifierPanel').style.display = 'block';
+        document.getElementById('currentVerifier').textContent = id;
+        loadPendingClaims();
+        loadVerifiedClaims();
+    } else {
+        document.getElementById('loginMsg').innerHTML = '<div class="message warning">❌ Please enter a verifier ID</div>';
+    }
+    return false;
+}
+
+function logout() {
+    currentVerifierId = null;
+    document.getElementById('loginCard').style.display = 'block';
+    document.getElementById('verifierPanel').style.display = 'none';
+    document.getElementById('verifierId').value = '';
+    document.getElementById('loginMsg').innerHTML = '';
+}
+
+function loadPendingClaims() {
+    const claims = getClaims().filter(c => c.status === 'pending');
+    const list = document.getElementById('pendingClaims');
+    
+    if (claims.length === 0) {
+        list.innerHTML = '<p class="message info">✅ No pending claims - All caught up!</p>';
+        return;
+    }
+    
+    list.innerHTML = claims.map(c => `
+        <div class="claim-record">
+            <h4>Claim #${c.id} <span class="status pending">PENDING</span></h4>
+            <p><strong>Farmer:</strong> ${c.farmerAddress}</p>
+            <p><strong>Proof Hash:</strong> <span class="hash">${c.proofHash}</span></p>
+            <p><strong>Submitted:</strong> ${formatDate(c.timestamp)}</p>
+            <div style="margin-top:15px">
+                <button class="btn-success" onclick="verifyClaim(${c.id}, 'approved')">✓ Approve</button>
+                <button class="btn-danger" onclick="verifyClaim(${c.id}, 'rejected')">✗ Reject</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function loadVerifiedClaims() {
+    const claims = getClaims().filter(c => c.status !== 'pending').slice(-5).reverse();
+    const list = document.getElementById('verifiedClaims');
+    
+    if (claims.length === 0) {
+        list.innerHTML = '<p class="message info">No verified claims yet</p>';
+        return;
+    }
+    
+    list.innerHTML = claims.map(c => `
+        <div class="claim-record">
+            <h4>Claim #${c.id} <span class="status ${c.status}">${c.status.toUpperCase()}</span></h4>
+            <p><strong>Farmer:</strong> ${c.farmerAddress}</p>
+            <p><strong>Verified By:</strong> ${c.verifiedBy}</p>
+            <p><strong>Verified At:</strong> ${formatDate(c.verifiedAt)}</p>
+        </div>
+    `).join('');
+}
+
+function verifyClaim(id, status) {
+    if (!currentVerifierId) {
+        alert('Please login first');
+        return;
+    }
+    
+    const action = status === 'approved' ? 'approve' : 'reject';
+    if (!confirm(`Are you sure you want to ${action} Claim #${id}?`)) {
+        return;
+    }
+    
+    updateClaim(id, {
+        status: status,
+        verifiedBy: 'Verifier: ' + currentVerifierId,
+        verifiedAt: new Date().toISOString()
+    });
+    
+    alert(`✅ Claim #${id} ${status}!`);
+    loadPendingClaims();
+    loadVerifiedClaims();
+}
+</script>
+</body>
+</html>
